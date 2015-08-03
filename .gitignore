@@ -1,0 +1,9 @@
+*.DS_Store
+*.idea
+*.coverage
+*.pyc
+*.egg
+*.swp
+docs/_build
+dist
+build

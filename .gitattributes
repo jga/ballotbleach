@@ -1,0 +1,29 @@
+# Set default behaviour, in case users don't have core.autocrlf set.
+# If not using a .gitattributes file, set core.autocrlf to properly
+# collaborate on GitHub. On OSx and Linux, core.autocrlf should be
+# set to 'input' on the global git configuration. For Windows, it's
+# set to 'true'.
+* text=auto
+
+# Explicitly declare text files we want to always be normalized
+# (Convert crlf to lf) .
+*.txt text
+*.py text
+*.xml text
+*.name text
+*.ids text
+*.iml text
+*.css text
+*.js text
+*.less text
+*.html text
+*.svg text
+.gitattributes text
+.gitignore text
+
+# Denote all files that are truly binary and should not be modified.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
