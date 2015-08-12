@@ -17,10 +17,11 @@ setup(
     url='https://github.com/jga/ballotbleach',
     keywords="elections ballot voting data quality",
     packages=['ballotbleach'],
-    install_requires=['click', 'xlrd'],
+    install_requires=['click', 'pytz', 'xlrd', 'python-dateutil'],
     entry_points={
         'console_scripts': [
             'ballotbleach=ballotbleach.core:run',
+            'ballotbleach-clean=ballotbleach.core:dump_clean',
         ],
     },
     platforms=['any'],
