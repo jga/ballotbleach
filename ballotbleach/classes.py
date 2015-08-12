@@ -1,3 +1,4 @@
+import csv
 from ballotbleach import risk
 
 
@@ -10,15 +11,15 @@ class Ballot(object):
     Represents a vote submission.
     """
     def __init__(self, timestamp, council_rating=None, next_priorities=None,
-                 most_efficient='None of the above'):
+                 most_effective='None'):
         self.id = None
-        self.score_explanation = ''
+        self._score_explanation = ''
         self.timestamp = timestamp
         self.council_rating = council_rating
         if not next_priorities:
             next_priorities = ''
         self.next_priorities = next_priorities
-        self.most_efficient = most_efficient
+        self.most_effective = most_effective
         self.score = 0
 
     def __eq__(self, other):
@@ -34,13 +35,26 @@ class Ballot(object):
     def __str__(self):
         return 'Timestamp {0} - Rating {1} - Most Effective: {2}'.format(self.timestamp,
                                                                          self.council_rating,                                                                         self.most_efficient)
-
+    @property
     def raw_priority(self):
         lowercase = self.next_priorities.lower()
-        return lowercase.replace(" ", "").strip()
+        return lowercase.replace(" ", "").replace("-", "").strip()
 
     def update_score(self, amount=1):
         self.score = (self.score + amount)
+
+    def add_explanation(self, explanation):
+        if self._score_explanation:
+            self._score_explanation = ''.join((self._score_explanation, '+', explanation,))
+        else:
+            self._score_explanation = explanation
+
+    @property
+    def explanation(self):
+        if self._score_explanation:
+            return self._score_explanation
+        else:
+            return ''
 
 
 class Store(object):
@@ -77,9 +91,23 @@ class Store(object):
             fields = str(ballot)
             print('Ballot {0} {1}'.format(ballot.id, fields))
 
-    def to_csv(self, file_path, cutoff_score, output_name='ballots'):
-        pass
+    def to_csv(self, output_directory, output_file_name='ballots.csv', cutoff_score=None):
+        """
+        Creates a CSV file with each ballot in the Store represented by a row of data.
+        """
+        output_csv = ''.join((output_directory, output_file_name))
+        with open(output_csv, 'w', newline='') as csv_file:
+            ballot_writer = csv.writer(csv_file)
+            ballots = self.get_ballots()
+            rows = []
+            for ballot in ballots:
+                if cutoff_score is None or ballot.score < cutoff_score:
+                    row = [ballot.id, ballot.timestamp, ballot.council_rating,
+                           ballot.most_effective, ballot.raw_priority,
+                           ballot.score, ballot.explanation]
+                    rows.append(row)
+            ballot_writer.writerows(rows)
 
     def score_risk(self):
-        for assessment in DEFAULT_RISK_ASSESSMENTS:
-                assessment(self.get_ballots())
+        for assessment in self.risk_assessments:
+            assessment(self.get_ballots())
