@@ -1,3 +1,13 @@
+"""
+Configuration options and functions that support command-line scripting.
+
+Attributes:
+    BALLOTBLEACH_TIMEZONE_NAME (str): A timezone name. Default is 'America/Chicago'.
+    DATA_FILE_PATH (str): File path for raw survey input data.
+    OUT_FILE_DIRECTORY (str): File path to output processed data result file.
+    LOGGER_CONFIG (dict): A dictionary for `logger_configuration`.
+    logger (logger): Python logger.
+"""
 from datetime import datetime
 from logging import getLogger, config
 from os.path import expanduser
@@ -40,6 +50,9 @@ LOGGER_CONFIG = {
 
 
 def row_to_ballot(row):
+    """
+    Transforms an Excel (xlsx) file row into a :class:`~ballotbleach.classes.Ballot`.
+    """
     tz = pytz.timezone(BALLOTBLEACH_TIMEZONE_NAME)
     excel_timestamp = xlrd.xldate_as_tuple(row[0].value, 0)
     logger.debug(excel_timestamp)
@@ -54,7 +67,7 @@ def row_to_ballot(row):
 
 def load_ballots(filename, skip_first_row=True):
     """
-    Adds ballots from a passed file.
+    Creates :class:`~ballotbleach.classes.Ballot` classes from a passed Excel (xlsx) file.
     """
     store = Store()
     book = xlrd.open_workbook(filename=filename)
@@ -70,7 +83,7 @@ def load_ballots(filename, skip_first_row=True):
 def run():
     """
     Called by command line script per setup.py configuration. Writes out
-    a CSV with all ballots scored for risk.
+    a CSV with *all* ballots scored for risk.
     """
     config.dictConfig(LOGGER_CONFIG)
     store = load_ballots(DATA_FILE_PATH)
@@ -81,7 +94,7 @@ def run():
 def dump_clean():
     """
     Called by command line script per setup.py configuration. Writes out
-    a CSV with all ballots scored for risk.
+    a CSV with all ballots with a risk score under 75.
     """
     config.dictConfig(LOGGER_CONFIG)
     store = load_ballots(DATA_FILE_PATH)
