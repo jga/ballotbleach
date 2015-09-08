@@ -3,15 +3,18 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to ballotbleach's documentation!
-========================================
+ballotbleach documentation
+==========================
 
-Contents:
+The ``ballotbleach`` library provides basic functionality for ensuring the data quality of online surveys.
+
+Documentation Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
-
+    classes
+    core
 
 Indices and tables
 ==================
