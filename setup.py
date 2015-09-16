@@ -9,7 +9,8 @@ def get_readme():
 setup(
     name='ballotbleach',
     version='0.1.0',
-    description="Simple data quality tools for online vote data.",
+    description="Simple data quality and analysis tools for surveys implementing the "
+                "Civic Leadership Assessment specification.",
     long_description=get_readme(),
     license="MIT",
     author="Julio Gonzalez Altamirano",
@@ -22,6 +23,7 @@ setup(
         'console_scripts': [
             'ballotbleach=ballotbleach.core:run',
             'ballotbleach-clean=ballotbleach.core:dump_clean',
+            'ballotbleach-analyze=ballotbleach.core:analyze'
         ],
     },
     platforms=['any'],
