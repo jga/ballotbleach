@@ -14,6 +14,7 @@ from os.path import expanduser
 import pytz
 import xlrd
 from .classes import Ballot, Store
+from .analysis import build_visualizations
 
 logger = getLogger(__name__)
 
@@ -80,7 +81,7 @@ def load_ballots(filename, skip_first_row=True):
     return store
 
 
-def run():
+def run(out_file_name='all_ballots.csv'):
     """
     Called by command line script per setup.py configuration. Writes out
     a CSV with *all* ballots scored for risk.
@@ -88,15 +89,27 @@ def run():
     config.dictConfig(LOGGER_CONFIG)
     store = load_ballots(DATA_FILE_PATH)
     store.score_risk()
-    store.to_csv(OUT_FILE_DIRECTORY, 'all_ballots.csv')
+    store.to_csv(OUT_FILE_DIRECTORY, out_file_name)
 
 
-def dump_clean():
+def dump_clean(out_file_name='clean_ballots.csv', risk_cutoff=75):
     """
     Called by command line script per setup.py configuration. Writes out
-    a CSV with all ballots with a risk score under 75.
+    a CSV with all ballots with a risk score under the passed threshold. The default is
+    75 points.
     """
     config.dictConfig(LOGGER_CONFIG)
     store = load_ballots(DATA_FILE_PATH)
     store.score_risk()
-    store.to_csv(OUT_FILE_DIRECTORY, 'clean_ballots.csv', 75)
+    store.to_csv(OUT_FILE_DIRECTORY, out_file_name, risk_cutoff)
+
+
+def analyze(image_save_directory=OUT_FILE_DIRECTORY, risk_cutoff=75):
+    """
+    Called by command line script per setup.py configuration. Writes out
+    visualizations with statistics analyzing submitted surveys. By default,
+    ballots at or exceeding the risk cutoff of 75 will **not** be considered
+    in analytical results.
+    """
+    store = load_ballots(DATA_FILE_PATH)
+    build_visualizations(image_save_directory, store, risk_cutoff)
