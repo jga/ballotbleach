@@ -1,5 +1,5 @@
-*************
+************
 ballotbleach
-*************
+************
 
-Simple data quality tools for online vote data.
+Data quality and analysis tools for surveys implementing the Civic Leadership Assessment specification.
