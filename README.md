@@ -91,7 +91,9 @@ proceeds to save as *rating.png*. Don't include the file type in the name.
 A list (`[]`) of positive integers allowed as scores for the subject rating. The default is *1, 2, 3, 4, 5*. An example
 setting:
 
+```
     subject_rating_range=[1,2,3,4,5,6,7,8,9,10]
+```
 
 **mask_file**
 
@@ -102,7 +104,9 @@ There is no default.
 
 A list (i.e. `[]`) of words that the word cloud generator should skip. Example setting:
 
+```
     stop_words=["alpha", "beta"]
+```
 
 Even if there is only one word, it must be in enclosed by list brackets as the value as parsed by
 Python's `json` library. Words must be in quotations.
@@ -114,4 +118,6 @@ a base list of stop words.
 
 Make sure `py.test` is installed. Then:
 
+```
     $ py.test tests
+```
