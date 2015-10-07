@@ -52,16 +52,16 @@ def get_near_ballots(ballot, ballots, cutoff):
 
 def has_empty_sibling_batch(ballot, comparison_ballots, qualifying_length=2):
     """
-    Checks for ballots with the same 'most_effective' answer and empty
-    'next_priorities'.  Returns True if the size of the matching batch
+    Checks for ballots with the same 'selected_actor' answer and empty
+    'feedback'.  Returns True if the size of the matching batch
     exceeds the qualifying length argument.
     """
     sibling_batch = []
-    most_effective = ballot.most_effective
-    if most_effective:
+    selected_actor = ballot.selected_actor
+    if selected_actor:
         for comparison_ballot in comparison_ballots:
-            if most_effective == comparison_ballot.most_effective \
-                    and len(comparison_ballot.raw_priority) == 0:
+            if selected_actor == comparison_ballot.selected_actor \
+                    and len(comparison_ballot.feedback) == 0:
                 sibling_batch.append(comparison_ballot)
     if len(sibling_batch) >= qualifying_length:
         return True
@@ -79,7 +79,7 @@ def check_chain_stuffing(ballots):
         risk_increment = 0
         near_ballots = get_near_ballots(ballot, ballots, BALLOT_TIME_CUTOFF)
         if has_empty_sibling_batch(ballot, near_ballots):
-            risk_increment = 100 if len(ballot.raw_priority) == 0 else 20
+            risk_increment = 100 if len(ballot.raw_feedback) == 0 else 20
         if risk_increment > 0:
             ballot.update_score(risk_increment)
             ballot.add_explanation('chain')
@@ -87,42 +87,44 @@ def check_chain_stuffing(ballots):
 
 def check_verbosity(ballots):
     """
-    Increases risk score if a ballot has a priorities comment that
-    is less than three words.
+    Increases risk score if a ballot has feedback that
+    is three words or less.
     """
     for ballot in ballots:
-        if ballot.raw_priority:
-            word_count = len(re.findall(r'[\w]+', ballot.next_priorities))
-            if word_count < 3:
-                ballot.update_score(25)
-                ballot.add_explanation('short')
+        if ballot.raw_feedback:
+            word_count = len(re.findall(r'[\w]+', ballot.feedback))
+            if word_count > 3:
+                continue
+        ballot.update_score(25)
+        ballot.add_explanation('short-feedback')
+
 
 
 def check_completion(ballots):
     """
-    Increases risk score if a ballot is missing either the Council Member
-    or satisfaction score.
+    Increases risk score if a ballot is missing either the subject rating
+    or feedback.
     """
     for ballot in ballots:
-        if not ballot.council_rating:
+        if not ballot.subject_rating:
             ballot.update_score(50)
             ballot.add_explanation('incomplete-rating')
-        if not ballot.raw_priority:
+        if not ballot.raw_feedback:
             ballot.update_score(50)
-            ballot.add_explanation('incomplete-priorities')
+            ballot.add_explanation('incomplete-feedback')
 
 
 def check_comment_duplication(ballots):
     """
-    Increases risk score if a ballot's priorities comment matches the
-    content of a different ballot.
+    Increases risk score if a ballot's feedback matches the
+    content of a different ballot submitted at a later point for the same selected actor.
     """
     for ballot in ballots:
-        if ballot.raw_priority:
+        if ballot.raw_feedback:
             other_ballots = get_comparison_ballots(ballot, ballots)
             for comparison_ballot in other_ballots:
-                if ballot.raw_priority == comparison_ballot.raw_priority \
-                        and ballot.most_effective == comparison_ballot.most_effective \
+                if ballot.raw_feedback == comparison_ballot.raw_feedback \
+                        and ballot.selected_actor == comparison_ballot.selected_actor \
                         and ballot.timestamp > comparison_ballot.timestamp:
                     ballot.update_score(75)
                     ballot.add_explanation('duplicate')
