@@ -5,6 +5,8 @@ Attributes:
     DEFAULT_RISK_ASSESSMENTS (list): The default list of risk assessment functions.
 """
 import csv
+import os
+import re
 from ballotbleach import risk
 
 
@@ -16,8 +18,8 @@ class Ballot(object):
     """
     Represents a vote submission for a survey that is compliant with the Civic Leadership Assessment specifcation.
     """
-    def __init__(self, timestamp, subject_rating=None, feedback=None,
-                 selected_actor='None'):
+    def __init__(self, timestamp, subject_rating=None, selected_actor='None',
+                 feedback=None):
         self.id = None
         self._score_explanation = ''
         self.timestamp = timestamp
@@ -49,7 +51,8 @@ class Ballot(object):
         This simplifies analysis such as word counts and word cloud generation.
         """
         lowercase = self.feedback.lower()
-        return lowercase.replace(" ", "").replace("-", "").strip()
+        bad_character_scrub = re.sub(r'[^a-z0-9 ]+', '', lowercase)
+        return bad_character_scrub.strip()
 
     def update_score(self, amount=1):
         """
@@ -151,7 +154,7 @@ class Store(object):
         """
         Creates a CSV file with each ballot in the Store represented by a row of data.
         """
-        output_csv = ''.join((output_directory, output_file_name))
+        output_csv = os.path.join(output_directory, output_file_name)
         with open(output_csv, 'w', newline='') as csv_file:
             ballot_writer = csv.writer(csv_file)
             ballot_writer.writerows(self.get_rows(cutoff_score))
