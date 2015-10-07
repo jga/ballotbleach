@@ -22,8 +22,6 @@ setup(
     entry_points={
         'console_scripts': [
             'ballotbleach=ballotbleach.core:run',
-            'ballotbleach-clean=ballotbleach.core:dump_clean',
-            'ballotbleach-analyze=ballotbleach.core:analyze'
         ],
     },
     platforms=['any'],
